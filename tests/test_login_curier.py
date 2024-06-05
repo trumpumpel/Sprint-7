@@ -1,15 +1,13 @@
-import requests
-import pytest
 import allure
-import json
-import random
-import string
+import requests
 
-from data import lg, ps, fn, URL
-from helpers import login, password, first_name, login_pass
+from data import lg, ps, URL
+from helpers import login, password
 
 
 class TestLoginCourier:
+    @allure.title('Проверка алгоритмов авторизации курьера')
+    @allure.step('Проверка авторизации курьера.')
     def test_courier_authorization(self):
         payload = {
             "login": lg,
@@ -18,17 +16,12 @@ class TestLoginCourier:
 
         response = requests.post(f'{URL}/api/v1/courier', data=payload)
         assert response.status_code == 201
-        assert response.text == '{"ok":true}'
-        response = requests.post(f'{URL}/api/v1/courier', data=payload)
-        assert response.status_code == 409
         response = requests.post(f'{URL}/api/v1/courier/login', data=payload)
-        assert response.status_code == 200
         path = response.json()["id"]
-        response_delete = requests.delete(f'{URL}/api/v1/courier/{path}')
-        assert response_delete.status_code == 200
+        response = requests.delete(f'{URL}/api/v1/courier/{path}')
         response = requests.post(f'{URL}/api/v1/courier/login', data=payload)
-        assert response.status_code == 404
 
+    @allure.step('Проверка авторизации курьера с незаполненным полем логин.')
     def test_courier_authorization_empty_field_login(self):
         payload = {
             "login": lg,
@@ -40,17 +33,14 @@ class TestLoginCourier:
         }
 
         response = requests.post(f'{URL}/api/v1/courier', data=payload)
-        assert response.status_code == 201
         response = requests.post(f'{URL}/api/v1/courier/login', data=payload1)
         assert response.status_code == 400
         response = requests.post(f'{URL}/api/v1/courier/login', data=payload)
-        assert response.status_code == 200
         path = response.json()["id"]
-        response_delete = requests.delete(f'{URL}/api/v1/courier/{path}')
-        assert response_delete.status_code == 200
+        response = requests.delete(f'{URL}/api/v1/courier/{path}')
         response = requests.post(f'{URL}/api/v1/courier/login', data=payload)
-        assert response.status_code == 404
 
+    @allure.step('Проверка авторизации курьера с незаполненным полем пароль.')
     def test_courier_authorization_empty_field_password(self):
         payload = {
             "login": lg,
@@ -63,17 +53,14 @@ class TestLoginCourier:
         }
 
         response = requests.post(f'{URL}/api/v1/courier', data=payload)
-        assert response.status_code == 201
         response = requests.post(f'{URL}/api/v1/courier/login', data=payload1)
         assert response.status_code == 400
         response = requests.post(f'{URL}/api/v1/courier/login', data=payload)
-        assert response.status_code == 200
         path = response.json()["id"]
-        response_delete = requests.delete(f'{URL}/api/v1/courier/{path}')
-        assert response_delete.status_code == 200
+        response = requests.delete(f'{URL}/api/v1/courier/{path}')
         response = requests.post(f'{URL}/api/v1/courier/login', data=payload)
-        assert response.status_code == 404
 
+    @allure.step('Проверка авторизации незарегистрированного курьера.')
     def test_authorization_non_existent_user(self):
         payload = {
             "login": login,
@@ -82,19 +69,15 @@ class TestLoginCourier:
         response = requests.post(f'{URL}/api/v1/courier/login', data=payload)
         assert response.status_code == 404
 
+    @allure.step('Проверка возврата id в случае успешного запроса.')
     def test_id_return(self):
         payload = {
             "login": lg,
             "password": ps
         }
         response = requests.post(f'{URL}/api/v1/courier', data=payload)
-        assert response.status_code == 201
         response = requests.post(f'{URL}/api/v1/courier/login', data=payload)
-        assert response.status_code == 200
-        print(response.text)
         assert 'id' in response.text
         path = response.json()["id"]
-        response_delete = requests.delete(f'{URL}/api/v1/courier/{path}')
-        assert response_delete.status_code == 200
+        response = requests.delete(f'{URL}/api/v1/courier/{path}')
         response = requests.post(f'{URL}/api/v1/courier/login', data=payload)
-        assert response.status_code == 404

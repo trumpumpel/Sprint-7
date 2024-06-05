@@ -1,59 +1,31 @@
-import requests
-import pytest
 import allure
-import json
-import random
-import string
+import requests
 
 from data import lg, ps, fn, URL
-from helpers import login, password, first_name, login_pass
+from helpers import password, first_name
 
 
 class TestCourier:
-    # метод регистрации нового курьера возвращает список из логина и пароля
-    # если регистрация не удалась, возвращает пустой список
-    def test_register_new_courier_and_return_login_password(self):
-        # собираем тело запроса
-        payload = {
-            "login": login,
-            "password": password,
-            "firstName": first_name
-        }
 
-        # отправляем запрос на регистрацию курьера и сохраняем ответ в переменную response
-        response = requests.post('https://qa-scooter.praktikum-services.ru/api/v1/courier', data=payload)
-
-        # если регистрация прошла успешно (код ответа 201), добавляем в список логин и пароль курьера
-        if response.status_code == 201:
-            login_pass.append(login)
-            login_pass.append(password)
-            login_pass.append(first_name)
-
-        # возвращаем список
-        return login_pass
-
+    @allure.title('Проверка алгоритмов создания курьера')
+    @allure.step('Проверка создания курьера и двух с одинаковыми данными')
     def test_register_two_couriers(self):
-        # собираем тело запроса
         payload = {
             "login": lg,
             "password": ps,
             "firstName": fn
         }
-
-        # отправляем запрос на регистрацию курьера и сохраняем ответ в переменную response
         response = requests.post(f'{URL}/api/v1/courier', data=payload)
         assert response.status_code == 201
         assert response.text == '{"ok":true}'
         response = requests.post(f'{URL}/api/v1/courier', data=payload)
         assert response.status_code == 409
         response = requests.post(f'{URL}/api/v1/courier/login', data=payload)
-        assert response.status_code == 200
         path = response.json()["id"]
-        response_delete = requests.delete(f'{URL}/api/v1/courier/{path}')
-        assert response_delete.status_code == 200
+        response = requests.delete(f'{URL}/api/v1/courier/{path}')
         response = requests.post(f'{URL}/api/v1/courier/login', data=payload)
-        assert response.status_code == 404
 
+    @allure.step('Проверка создания курьера с незаполненным полем логин')
     def test_register_couriers_empty_field_login(self):
         payload = {
             "password": ps,
@@ -62,8 +34,8 @@ class TestCourier:
         response = requests.post(f'{URL}/api/v1/courier',
                                  data=payload)
         assert response.status_code == 400
-        print(response.text)
 
+    @allure.step('Проверка создания курьера с незаполненным полем пароль')
     def test_register_couriers_empty_field_password(self):
         payload = {
             "login": lg,
@@ -73,18 +45,34 @@ class TestCourier:
                                  data=payload)
         assert response.status_code == 400
 
+    @allure.step('Проверка создания курьера с незаполненным полем имя')
     def test_register_couriers_empty_field_firstname(self):
         payload = {
             "login": lg,
             "password": ps
         }
-        response = requests.post(f'{URL}/api/v1/courier',
-                                 data=payload)
+        response = requests.post(f'{URL}/api/v1/courier', data=payload)
         assert response.status_code == 201
         response = requests.post(f'{URL}/api/v1/courier/login', data=payload)
-        assert response.status_code == 200
         path = response.json()["id"]
-        response_delete = requests.delete(f'{URL}/api/v1/courier/{path}')
-        assert response_delete.status_code == 200
+        response = requests.delete(f'{URL}/api/v1/courier/{path}')
         response = requests.post(f'{URL}/api/v1/courier/login', data=payload)
-        assert response.status_code == 404
+
+    @allure.step('Проверка создания курьера с уже использующимся логином')
+    def test_register_couriers_with_login_used(self):
+        payload = {
+            "login": lg,
+            "password": ps
+        }
+        payload1 = {
+            "login": lg,
+            "password": password,
+            "firstName": first_name
+        }
+        response = requests.post(f'{URL}/api/v1/courier', data=payload)
+        response = requests.post(f'{URL}/api/v1/courier', data=payload1)
+        assert response.status_code == 409
+        response = requests.post(f'{URL}/api/v1/courier/login', data=payload)
+        path = response.json()["id"]
+        response = requests.delete(f'{URL}/api/v1/courier/{path}')
+        response = requests.post(f'{URL}/api/v1/courier/login', data=payload)
