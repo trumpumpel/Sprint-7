@@ -1,5 +1,4 @@
-URL = 'https://qa-scooter.praktikum-services.ru/api/v1/courier'
-URL_LOG = 'https://qa-scooter.praktikum-services.ru/api/v1/login'
+URL = 'https://qa-scooter.praktikum-services.ru'
 lg = "murfl"
 ps = "234634"
 fn = "burfl"

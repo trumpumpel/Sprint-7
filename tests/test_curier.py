@@ -41,17 +41,17 @@ class TestCourier:
         }
 
         # отправляем запрос на регистрацию курьера и сохраняем ответ в переменную response
-        response = requests.post(URL, data=payload)
+        response = requests.post(f'{URL}/api/v1/courier', data=payload)
         assert response.status_code == 201
         assert response.text == '{"ok":true}'
-        response = requests.post(URL, data=payload)
+        response = requests.post(f'{URL}/api/v1/courier', data=payload)
         assert response.status_code == 409
-        response = requests.post(f'{URL}/login', data=payload)
+        response = requests.post(f'{URL}/api/v1/courier/login', data=payload)
         assert response.status_code == 200
         path = response.json()["id"]
-        response_delete = requests.delete(f'{URL}/{path}')
+        response_delete = requests.delete(f'{URL}/api/v1/courier/{path}')
         assert response_delete.status_code == 200
-        response = requests.post(f'{URL}/login', data=payload)
+        response = requests.post(f'{URL}/api/v1/courier/login', data=payload)
         assert response.status_code == 404
 
     def test_register_couriers_empty_field_login(self):
@@ -59,7 +59,7 @@ class TestCourier:
             "password": ps,
             "firstName": fn
         }
-        response = requests.post(URL,
+        response = requests.post(f'{URL}/api/v1/courier',
                                  data=payload)
         assert response.status_code == 400
         print(response.text)
@@ -69,7 +69,7 @@ class TestCourier:
             "login": lg,
             "firstName": fn
         }
-        response = requests.post(URL,
+        response = requests.post(f'{URL}/api/v1/courier',
                                  data=payload)
         assert response.status_code == 400
 
@@ -78,13 +78,13 @@ class TestCourier:
             "login": lg,
             "password": ps
         }
-        response = requests.post(URL,
+        response = requests.post(f'{URL}/api/v1/courier',
                                  data=payload)
         assert response.status_code == 201
-        response = requests.post(f'{URL}/login', data=payload)
+        response = requests.post(f'{URL}/api/v1/courier/login', data=payload)
         assert response.status_code == 200
         path = response.json()["id"]
-        response_delete = requests.delete(f'{URL}/{path}')
+        response_delete = requests.delete(f'{URL}/api/v1/courier/{path}')
         assert response_delete.status_code == 200
-        response = requests.post(f'{URL}/login', data=payload)
+        response = requests.post(f'{URL}/api/v1/courier/login', data=payload)
         assert response.status_code == 404
