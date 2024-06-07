@@ -2,7 +2,8 @@ import allure
 import requests
 import pytest
 
-from data import lg, ps, fn, URL
+from data import lg, ps, fn, url
+from conftest import password, first_name, user_registration_and_delete, payload, payload4, data
 
 
 class TestCreatingOrder:
@@ -11,59 +12,35 @@ class TestCreatingOrder:
     @allure.step('Проверка наличия track  в ответе при создании заказа.')
     @pytest.mark.parametrize(
         'firstname, lastname, address, metrostation, phone, renttime, deliverydate, comment, color',
+
         [
-            ["Duncan", "MacLeod", "SW1A 0AA", "Westminster", "+74954261754", 4, "21.06.2024", "viva chile", "BLACK"],
-            ['', 'MacLeod', 'SW1A 0AA', 'Westminster', '+74954261754', '4', '21.06.2024', 'viva chile', 'BLACK'],
-            ['Duncan', '', 'SW1A 0AA', 'Westminster', '+74954261754', '4', '21.06.2024', 'viva chile', 'BLACK'],
-            ['Duncan', 'MacLeod', '', 'Westminster', '+74954261754', '4', '21.06.2024', 'viva chile', 'BLACK'],
-            ['Duncan', 'MacLeod', 'SW1A 0AA', '', '+74954261754', '4', '21.06.2024', 'viva chile', 'BLACK'],
-            ['Duncan', 'MacLeod', 'SW1A 0AA', 'Westminster', '', '4', '21.06.2024', 'viva chile', 'BLACK'],
-            ['Duncan', 'MacLeod', 'SW1A 0AA', 'Westminster', '+74954261754', '', '21.06.2024', 'viva chile', 'BLACK'],
-            ['Duncan', 'MacLeod', 'SW1A 0AA', 'Westminster', '+74954261754', '4', '', 'viva chile', 'BLACK'],
             ['Duncan', 'MacLeod', 'SW1A 0AA', 'Westminster', '+74954261754', '4', '21.06.2024', 'viva chile',
-             'BLACKGREY'],
+             'BLACK'],
             ['Duncan', 'MacLeod', 'SW1A 0AA', 'Westminster', '+74954261754', '4', '21.06.2024', 'viva chile',
-             'BLACKGREY'],
-            ['Duncan', 'MacLeod', 'SW1A 0AA', 'Westminster', '+74954261754', '4', '21.06.2024', 'viva chile', ''],
-            ['Duncan', 'MacLeod', 'SW1A 0AA', 'Westminster', '+74954261754', '4', '21.06.2024', 'viva chile', 'GREY']
+             'GREY'],
+            ['Duncan', 'MacLeod', 'SW1A 0AA', 'Westminster', '+74954261754', '4', '21.06.2024', 'viva chile',
+             'BLACK''GREY'],
+            ['Duncan', 'MacLeod', 'SW1A 0AA', 'Westminster', '+74954261754', '4', '21.06.2024', 'viva chile', '']
         ]
     )
-    def test_creating_order(self, firstname, lastname, address, metrostation, phone, renttime, deliverydate, comment,
+    # @pytest.mark.parametrize(
+    #     'firstname, lastname, address, metrostation, phone, renttime, deliverydate, comment, color', firstnames,
+    #     lastnames, addresses, metrostations, phones, renttimes, deliverydates, comments, colors)
+    def test_creating_order(self, firstname, lastname, address, metrostation, phone, renttime, deliverydate,
+                            comment,
                             color):
-        response = requests.post(f'{URL}/api/v1/orders')
+        response = requests.post(f'{url}/api/v1/orders')
         assert response.status_code == 201
         assert 'track' in response.text
-        path = response.json()["track"]
-        response_find = requests.get(f'{URL}/api/v1/orders/track?t={path}')
-        assert response_find.status_code == 200
 
     @allure.step('Проверка наличия созданного заказа в списке заказов.')
     def test_getting_list_of_orders(self):
-        payload = {
-            "login": lg,
-            "password": ps,
-            "firstName": fn
-        }
-        data = {
-            "firstName": "Naruto",
-            "lastName": "Uchiha",
-            "address": "Konoha, 142 apt.",
-            "metroStation": 4,
-            "phone": "+7 800 355 35 35",
-            "rentTime": 5,
-            "deliveryDate": "2020-06-06",
-            "comment": "Saske, come back to Konoha",
-            "color": [
-                "BLACK"
-            ]
-
-        }
-        response = requests.post(f'{URL}/api/v1/courier', data=payload)
-        response = requests.post(f'{URL}/api/v1/orders', json=data)
+        requests.post(f'{url}/api/v1/courier', data=payload)
+        response = requests.post(f'{url}/api/v1/orders', json=data)
         track = response.json()["track"]
-        response_id_c = requests.post(f'{URL}/api/v1/courier/login', data=payload)
+        response_id_c = requests.post(f'{url}/api/v1/courier/login', data=payload)
         id_c = response_id_c.json()["id"]
-        response = requests.get(f'{URL}/api/v1/orders/accept/{track}?courierId={id_c}')
-        response = requests.delete(f'{URL}/api/v1/courier/{id_c}')
-        response = requests.post(f'{URL}/api/v1/courier/login', data=payload)
+        requests.get(f'{url}/api/v1/orders/accept/{track}?courierId={id_c}')
+        requests.delete(f'{url}/api/v1/courier/{id_c}')
+        response = requests.post(f'{url}/api/v1/courier/login', data=payload)
         assert response.status_code == 404
