@@ -23,9 +23,6 @@ class TestCreatingOrder:
             ['Duncan', 'MacLeod', 'SW1A 0AA', 'Westminster', '+74954261754', '4', '21.06.2024', 'viva chile', '']
         ]
     )
-    # @pytest.mark.parametrize(
-    #     'firstname, lastname, address, metrostation, phone, renttime, deliverydate, comment, color', firstnames,
-    #     lastnames, addresses, metrostations, phones, renttimes, deliverydates, comments, colors)
     def test_creating_order(self, firstname, lastname, address, metrostation, phone, renttime, deliverydate,
                             comment,
                             color):
@@ -33,7 +30,7 @@ class TestCreatingOrder:
         assert response.status_code == 201
         assert 'track' in response.text
 
-    @allure.step('Проверка наличия созданного заказа в списке заказов.')
+    @allure.title('Проверка наличия созданного заказа в списке заказов.')
     def test_getting_list_of_orders(self):
         requests.post(f'{url}/api/v1/courier', data=payload)
         response = requests.post(f'{url}/api/v1/orders', json=data)
