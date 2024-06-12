@@ -2,8 +2,7 @@ import allure
 import requests
 import pytest
 
-from data import lg, ps, fn, url
-from conftest import password, first_name, user_registration_and_delete, payload, payload4, data
+from data import URL, PATH_LOGIN, PATH_ORDERS, PATH_COURIER, data, payload
 
 
 class TestCreatingOrder:
@@ -26,18 +25,18 @@ class TestCreatingOrder:
     def test_creating_order(self, firstname, lastname, address, metrostation, phone, renttime, deliverydate,
                             comment,
                             color):
-        response = requests.post(f'{url}/api/v1/orders')
+        response = requests.post(f'{URL}{PATH_ORDERS}')
         assert response.status_code == 201
         assert 'track' in response.text
 
     @allure.title('Проверка наличия созданного заказа в списке заказов.')
     def test_getting_list_of_orders(self):
-        requests.post(f'{url}/api/v1/courier', data=payload)
-        response = requests.post(f'{url}/api/v1/orders', json=data)
+        requests.post(f'{URL}{PATH_COURIER}', data=payload)
+        response = requests.post(f'{URL}{PATH_ORDERS}', json=data)
         track = response.json()["track"]
-        response_id_c = requests.post(f'{url}/api/v1/courier/login', data=payload)
+        response_id_c = requests.post(f'{URL}{PATH_LOGIN}', data=payload)
         id_c = response_id_c.json()["id"]
-        requests.get(f'{url}/api/v1/orders/accept/{track}?courierId={id_c}')
-        requests.delete(f'{url}/api/v1/courier/{id_c}')
-        response = requests.post(f'{url}/api/v1/courier/login', data=payload)
+        requests.get(f'{URL}{PATH_ORDERS}/accept/{track}?courierId={id_c}')
+        requests.delete(f'{URL}{PATH_COURIER}/{id_c}')
+        response = requests.post(f'{URL}{PATH_LOGIN}', data=payload)
         assert response.status_code == 404
