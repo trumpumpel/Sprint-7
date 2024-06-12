@@ -1,7 +1,8 @@
 import allure
 import requests
 from conftest import user_registration_and_delete
-from data import payload, payload4, payload3, payload1, payload7, URL, PATH_COURIER, PATH_LOGIN
+from data import payload, payload_register_couriers_empty_field_firstname, payload_register_couriers_empty_field_password, payload_register_couriers_empty_field_login, URL, PATH_COURIER, PATH_LOGIN, \
+    payload_register_couriers_with_login_used
 
 
 class TestCourier:
@@ -24,27 +25,27 @@ class TestCourier:
     @allure.title('Проверка создания курьера с незаполненным полем логин')
     def test_register_couriers_empty_field_login(self):
         response = requests.post(f'{URL}{PATH_COURIER}',
-                                 data=payload7)
+                                 data=payload_register_couriers_empty_field_login)
         assert response.status_code == 400
 
     @allure.title('Проверка создания курьера с незаполненным полем пароль')
     def test_register_couriers_empty_field_password(self):
         response = requests.post(f'{URL}{PATH_COURIER}',
-                                 data=payload3)
+                                 data=payload_register_couriers_empty_field_password)
         assert response.status_code == 400
 
     @allure.title('Проверка создания курьера с незаполненным полем имя')
     def test_register_couriers_empty_field_firstname(self):
-        response = requests.post(f'{URL}{PATH_COURIER}', data=payload4)
+        response = requests.post(f'{URL}{PATH_COURIER}', data=payload_register_couriers_empty_field_firstname)
         assert response.status_code == 201
-        response = requests.post(f'{URL}{PATH_LOGIN}', data=payload4)
+        response = requests.post(f'{URL}{PATH_LOGIN}', data=payload_register_couriers_empty_field_firstname)
         path = response.json()["id"]
         requests.delete(f'{URL}{PATH_COURIER}{path}')
-        requests.post(f'{URL}{PATH_LOGIN}', data=payload4)
+        requests.post(f'{URL}{PATH_LOGIN}', data=payload_register_couriers_empty_field_firstname)
 
     @allure.title('Проверка создания курьера с уже использующимся логином')
     def test_register_couriers_with_login_used(self, user_registration_and_delete):
-        response = requests.post(f'{URL}{PATH_COURIER}', data=payload1)
+        response = requests.post(f'{URL}{PATH_COURIER}', data=payload_register_couriers_with_login_used)
         assert response.status_code == 409
 
     @allure.title('Проверка возврата {"ok":true} в случае успешного запроса')

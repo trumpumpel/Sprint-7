@@ -39,33 +39,33 @@ payload = {
     "password": ps,
     "firstName": fn
 }
-payload1 = {
+payload_register_couriers_with_login_used = {
     "login": lg,
     "password": password,
     "firstName": first_name
 }
-payload2 = {
+payload_authorization_non_existent_user = {
     "login": login,
     "password": password,
     "firstName": first_name
 }
-payload3 = {
+payload_register_couriers_empty_field_password = {
     "login": lg,
     "firstName": fn
 }
-payload4 = {
+payload_register_couriers_empty_field_firstname = {
     "login": lg,
     "password": ps
 }
-payload5 = {
+payload_courier_authorization_empty_field_password = {
     "login": lg,
     "password": ''
 }
-payload6 = {
+payload_courier_authorization_empty_field_login = {
     "login": '',
     "password": ps
 }
-payload7 = {
+payload_register_couriers_empty_field_login = {
     "password": ps,
     "firstName": fn
 }
