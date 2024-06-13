@@ -1,21 +1,14 @@
 import requests
-from data import URL, payload, PATH_COURIER, PATH_LOGIN
+from data.test_url_data import TestUrlData
+from data.test_auth_data import TestAuthData
 import pytest
 
 
 @pytest.fixture
 def user_registration_and_delete():
-    requests.post(f'{URL}{PATH_COURIER}', data=payload)
+    requests.post(f'{TestUrlData.URL}{TestUrlData.PATH_COURIER}', data=TestAuthData.payload)
     yield
-    response = requests.post(f"{URL}{PATH_LOGIN}", data=payload)
+    response = requests.post(f"{TestUrlData.URL}{TestUrlData.PATH_LOGIN}", data=TestAuthData.payload)
     path = response.json()["id"]
-    requests.delete(f'{URL}{PATH_COURIER}/{path}')
-    requests.post(f'{URL}{PATH_LOGIN}', data=payload)
-
-
-@pytest.fixture
-def user_delete():
-    response = requests.post(f"{URL}{PATH_LOGIN}", data=payload)
-    path = response.json()["id"]
-    requests.delete(f'{URL}{PATH_COURIER}/{path}')
-    requests.post(f'{URL}{PATH_LOGIN}', data=payload)
+    requests.delete(f'{TestUrlData.URL}{TestUrlData.PATH_COURIER}/{path}')
+    requests.post(f'{TestUrlData.URL}{TestUrlData.PATH_LOGIN}', data=TestAuthData.payload)
